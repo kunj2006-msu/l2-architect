@@ -67,14 +67,14 @@ export default function Home() {
                   <stop offset="100%" stopColor="#FF5E00" stopOpacity="0.2" />
                 </linearGradient>
               </defs>
-              
+
               {/* Connection Lines / Data Flow */}
               <path d="M 120 120 L 200 170" stroke="#00E5FF" strokeWidth="1.5" strokeDasharray="4,4" fill="none" />
               <path d="M 200 90 L 200 170" stroke="#00E5FF" strokeWidth="1.5" strokeDasharray="4,4" fill="none" />
               <path d="M 280 120 L 200 170" stroke="#00E5FF" strokeWidth="1.5" strokeDasharray="4,4" fill="none" />
-              
+
               <path d="M 200 190 L 200 280" stroke="#FF5E00" strokeWidth="2" fill="none" />
-              
+
               <circle cx="200" cy="235" r="4" fill="#00E5FF">
                 <animate attributeName="cy" values="190;280" dur="2.5s" repeatCount="indefinite" />
               </circle>
@@ -118,16 +118,16 @@ export default function Home() {
                 <polygon points="70,20 130,50 70,80 10,50" fill="#0a0a0a" stroke="#FF5E00" strokeWidth="2" />
                 <polygon points="10,50 70,80 70,110 10,80" fill="none" stroke="#FF5E00" strokeWidth="2" />
                 <polygon points="70,80 130,50 130,80 70,110" fill="none" stroke="#FF5E00" strokeWidth="2" />
-                
+
                 <text x="70" y="50" fill="#FF5E00" fontFamily="Space Grotesk" fontSize="11" fontWeight="bold" textAnchor="middle">ETHEREUM L1</text>
-                <text x="70" y="65" fill="#888888" fontFamily="Fira Code" fontSize="7.5" textAnchor="middle">STATE_COMMITMENT</text>
+
               </g>
-              
+
               {/* Blueprint Labels */}
-              <text x="30" y="110" fill="#888888" fontFamily="Fira Code" fontSize="9">[ LAYER 2 ]</text>
-              <text x="30" y="125" fill="#00E5FF" fontFamily="Fira Code" fontSize="8">OFF-CHAIN EXEC</text>
-              
-              <text x="300" y="325" fill="#888888" fontFamily="Fira Code" fontSize="9">[ LAYER 1 ]</text>
+              <text x="15" y="65" fill="#eaeaea" fontFamily="Fira Code" fontSize="9">[ LAYER 2 ]</text>
+              <text x="15" y="80" fill="#00E5FF" fontFamily="Fira Code" fontSize="8">OFF-CHAIN EXEC</text>
+
+              <text x="300" y="325" fill="#eaeaea" fontFamily="Fira Code" fontSize="9">[ LAYER 1 ]</text>
               <text x="300" y="340" fill="#FF5E00" fontFamily="Fira Code" fontSize="8">DATA AVAILABILITY</text>
             </svg>
           </div>
@@ -185,7 +185,7 @@ export default function Home() {
             <div className="section-meta">SYS_SPECS: CORE_ARCHITECTURES</div>
             <h2 className="section-title" id="title-specs">System Features</h2>
           </div>
-          
+
           <div className="features-grid">
             {/* Card 1 */}
             <div className="feature-card" id="feature-throughput">

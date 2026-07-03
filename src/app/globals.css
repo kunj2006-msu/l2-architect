@@ -10,10 +10,10 @@
   --border-color: #333333;
   --border-glow: #00E5FF33;
   --grid-line: rgba(255, 255, 255, 0.04);
-  
+
   --font-sans: 'Space Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'Fira Code', monospace;
-  
+
   --header-height: 70px;
 }
 
@@ -46,7 +46,7 @@ body::before {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-image: 
+  background-image:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 40px 40px;
@@ -63,10 +63,8 @@ body::after {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%, 
-    rgba(0, 0, 0, 0.25) 50%
-  );
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.25) 50%);
   background-size: 100% 4px;
   pointer-events: none;
   z-index: 9999;
@@ -83,7 +81,12 @@ body::after {
 }
 
 /* Typography & General Classes */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-sans);
   font-weight: 700;
   text-transform: uppercase;
@@ -357,7 +360,7 @@ input[type="submit"]:hover,
   align-items: center;
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 450px;
   border: 1px dashed var(--border-color);
   background-color: rgba(255, 255, 255, 0.01);
 }
@@ -365,8 +368,13 @@ input[type="submit"]:hover,
 /* Custom CSS Block Drawing / Grid Graphic */
 .blueprint-graphic {
   position: relative;
-  width: 300px;
-  height: 300px;
+  width: 100%;
+  height: 100%;
+  max-width: 500px;
+  max-height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .blueprint-grid-back {
@@ -375,7 +383,7 @@ input[type="submit"]:hover,
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
+  background:
     linear-gradient(var(--border-color) 1px, transparent 1px),
     linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
   background-size: 30px 30px;
@@ -617,13 +625,30 @@ input[type="submit"]:hover,
 
 /* Animations */
 @keyframes blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+
+  0%,
+  49% {
+    opacity: 1;
+  }
+
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
+
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
 }
 
 /* Mobile Responsiveness */
@@ -634,29 +659,29 @@ input[type="submit"]:hover,
     text-align: center;
     padding-top: 3rem;
   }
-  
+
   .hero-content {
     align-items: center;
   }
-  
+
   .hero-title {
     font-size: 2.75rem;
   }
-  
+
   .hero-desc {
     margin-left: auto;
     margin-right: auto;
   }
-  
+
   .terminal-controls {
     justify-content: center;
   }
-  
+
   .why-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
   }
-  
+
   .features-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -667,11 +692,11 @@ input[type="submit"]:hover,
   :root {
     --header-height: 60px;
   }
-  
+
   .menu-toggle {
     display: block;
   }
-  
+
   .nav-menu {
     display: none;
     flex-direction: column;
@@ -683,23 +708,23 @@ input[type="submit"]:hover,
     border-bottom: 1px solid var(--border-color);
     height: auto;
   }
-  
+
   .nav-menu.open {
     display: flex;
   }
-  
+
   .nav-item {
     width: 100%;
     height: 50px;
   }
-  
+
   .nav-link {
     width: 100%;
     padding: 0 2rem;
     border-left: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.02);
   }
-  
+
   .nav-link.active {
     border-left: none;
     border-right: 4px solid var(--accent-blue);
@@ -812,12 +837,12 @@ input[type="submit"]:hover,
   .split-matrix-card {
     flex-direction: column;
   }
-  
+
   .matrix-pane-left {
     border-right: none;
     border-bottom: 1px solid var(--border-color);
   }
-  
+
   .split-matrix-card:hover .matrix-pane-left {
     border-bottom-color: rgba(0, 229, 255, 0.3);
   }
@@ -917,6 +942,7 @@ input[type="submit"]:hover,
   .matrix-slider-container {
     gap: 0.75rem;
   }
+
   .slider-arrow {
     width: 40px;
     height: 40px;
@@ -929,6 +955,283 @@ input[type="submit"]:hover,
    ========================================================================== */
 .prices-section {
   background-color: var(--bg-color);
+}
+
+/* Prices Toolbar (Search & Filter) */
+.prices-toolbar {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.prices-toolbar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 250px;
+}
+
+.prices-toolbar-item label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.terminal-input,
+.terminal-select {
+  background-color: rgba(10, 10, 10, 0.8);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  border-radius: 0;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  width: 100%;
+}
+
+.terminal-input:focus,
+.terminal-select:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 10px var(--border-glow);
+}
+
+.terminal-select option {
+  background-color: #0c0c0c;
+  color: var(--text-color);
+}
+
+.trend-disabled-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trend-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  user-select: none;
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border-color);
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  /* explicitly disable click */
+}
+
+.trend-disabled:hover {
+  opacity: 0.7;
+}
+
+/* Price Trend Interactive Button */
+.trend-active {
+  cursor: pointer;
+  user-select: none;
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(0, 229, 255, 0.05);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--accent-blue);
+}
+
+.trend-active:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  box-shadow: 0 0 8px var(--border-glow);
+  background-color: rgba(0, 229, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.trend-active.trend-down {
+  background-color: rgba(255, 0, 60, 0.05);
+  color: #FF003C;
+}
+
+.trend-active.trend-down:hover {
+  border-color: #FF003C;
+  color: #FF003C;
+  box-shadow: 0 0 8px rgba(255, 0, 60, 0.3);
+  background-color: rgba(255, 0, 60, 0.15);
+}
+
+.trend-active:active {
+  transform: scale(0.95);
+}
+
+/* Terminal Modal Overlay */
+.terminal-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* prevent height cutoff by aligning to top */
+  overflow-y: auto;
+  /* enable vertical scroll if height overflows */
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  padding: 2.5rem 1rem;
+  /* spacing for scrolling modal content */
+}
+
+/* Modal Content Box */
+.terminal-modal {
+  background-color: #0a0a0a;
+  border: 1px solid var(--border-color);
+  width: 90%;
+  max-width: 700px;
+  padding: 2rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.05);
+  transition: border-color 0.3s ease;
+}
+
+.terminal-modal.modal-trend-up {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.1);
+}
+
+.terminal-modal.modal-trend-down {
+  border-color: #FF003C;
+  box-shadow: 0 0 30px rgba(255, 0, 60, 0.1);
+}
+
+/* Modal Header details */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.75rem;
+}
+
+.modal-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.modal-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.modal-title {
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  color: var(--text-color);
+  letter-spacing: -0.01em;
+}
+
+.modal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border-color);
+  padding: 1rem;
+}
+
+.modal-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.modal-stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.modal-stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* Chart Container styling */
+.chart-container-wrapper {
+  width: 100%;
+  height: 320px;
+  margin-top: 0.5rem;
+  position: relative;
+}
+
+.chart-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 10, 10, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--accent-blue);
+  border: 1px dashed var(--border-color);
+}
+
+/* Close button styling */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .modal-stats {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .chart-container-wrapper {
+    height: 220px;
+  }
+
+  .terminal-modal {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+}
+
+@media (max-height: 720px) {
+  .chart-container-wrapper {
+    height: 220px;
+  }
+
+  .terminal-modal {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
 }
 
 .terminal-header-bar {
@@ -1192,6 +1495,3 @@ input[type="submit"]:hover,
     margin: 0 auto;
   }
 }
-
-
-
