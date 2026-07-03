@@ -1,26 +1,170 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
+const PROBLEM_POINTS = [
+  "High Gas Fees: Bidding wars during peak hours push fees to $50+ per trade.",
+  "Low Throughput: The base layer handles only ~15 transactions per second.",
+  "Slow Confirmation Times: Blocks take averages of 12 seconds to clear."
+];
+
+const SOLUTION_POINTS = [
+  "Fractional Cent Fees: Transaction execution cost is slashed by up to 95%.",
+  "High Throughput: Supports thousands of transactions per second (TPS).",
+  "Ethereum-Grade Security: Cryptographic assertions preserve L1 trustlessness."
+];
+
 export default function Home() {
-  const [typedText, setTypedText] = useState('');
-  const fullText = 'Understanding Layer 2 Rollups';
+  const [typedTitle1, setTypedTitle1] = useState('');
+  const [typedTitle2, setTypedTitle2] = useState('');
+  const [typedSubtitle, setTypedSubtitle] = useState('');
+  const [typedDesc, setTypedDesc] = useState('');
+  const [showDiagram, setShowDiagram] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
+  const [heroFinished, setHeroFinished] = useState(false);
+
+  const titlePart1 = "Scaling Ethereum";
+  const titlePart2 = "with Arbitrum.";
+  const subtitleText = "Understanding Layer 2 Rollups";
+  const descriptionText = "Arbitrum is a suite of Ethereum scaling solutions making transactions fast and cheap. By rolling up hundreds of transactions into a single batch on Layer 1, Arbitrum provides massive throughput without compromising on Ethereum's base layer security.";
+
+  // Scroll revealed states
+  const sectionRef = useRef(null);
+  const [problemTyped, setProblemTyped] = useState([null, null, null]);
+  const [solutionTyped, setSolutionTyped] = useState([null, null, null]);
+  const [hasTriggeredWhy, setHasTriggeredWhy] = useState(false);
 
   useEffect(() => {
-    let index = 0;
-    const typingInterval = setInterval(() => {
-      if (index < fullText.length) {
-        // Use a functional state update to bypass closure scoping of variables
-        setTypedText(fullText.substring(0, index + 1));
-        index++;
-      } else {
-        clearInterval(typingInterval);
-      }
-    }, 70);
+    let idx1 = 0;
+    let idx2 = 0;
+    let idx3 = 0;
+    let idx4 = 0;
 
-    return () => clearInterval(typingInterval);
+    const typeLine1 = () => {
+      if (idx1 < titlePart1.length) {
+        setTypedTitle1(titlePart1.substring(0, idx1 + 1));
+        idx1++;
+        setTimeout(typeLine1, 30);
+      } else {
+        setTimeout(typeLine2, 100);
+      }
+    };
+
+    const typeLine2 = () => {
+      if (idx2 < titlePart2.length) {
+        setTypedTitle2(titlePart2.substring(0, idx2 + 1));
+        idx2++;
+        setTimeout(typeLine2, 30);
+      } else {
+        setTimeout(typeSubtitle, 150);
+      }
+    };
+
+    const typeSubtitle = () => {
+      if (idx3 < subtitleText.length) {
+        setTypedSubtitle(subtitleText.substring(0, idx3 + 1));
+        idx3++;
+        setTimeout(typeSubtitle, 40);
+      } else {
+        // Subtitle typing completed. Trigger diagram fade-in and description typing.
+        setShowDiagram(true);
+        setTimeout(typeDesc, 200);
+      }
+    };
+
+    const typeDesc = () => {
+      if (idx4 < descriptionText.length) {
+        setTypedDesc(descriptionText.substring(0, idx4 + 1));
+        idx4++;
+        setTimeout(typeDesc, 8); // fast typing speed for the paragraph block
+      } else {
+        // Description completed. Show action buttons and allow scroll observer to bind.
+        setShowButtons(true);
+        setHeroFinished(true);
+      }
+    };
+
+    typeLine1();
   }, []);
+
+  useEffect(() => {
+    if (!heroFinished || hasTriggeredWhy) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          setHasTriggeredWhy(true);
+          startWhyTyping();
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [heroFinished, hasTriggeredWhy]);
+
+  const startWhyTyping = () => {
+    let probItemIdx = 0;
+    let probCharIdx = 0;
+    let solItemIdx = 0;
+    let solCharIdx = 0;
+
+    const typeProblem = () => {
+      if (probItemIdx < PROBLEM_POINTS.length) {
+        const fullText = PROBLEM_POINTS[probItemIdx];
+        setProblemTyped((prev) => {
+          const next = [...prev];
+          if (next[probItemIdx] === null) {
+            next[probItemIdx] = "";
+          }
+          next[probItemIdx] = fullText.substring(0, probCharIdx + 1);
+          return next;
+        });
+
+        if (probCharIdx < fullText.length - 1) {
+          probCharIdx++;
+          setTimeout(typeProblem, 15);
+        } else {
+          probItemIdx++;
+          probCharIdx = 0;
+          setTimeout(typeProblem, 100);
+        }
+      }
+    };
+
+    const typeSolution = () => {
+      if (solItemIdx < SOLUTION_POINTS.length) {
+        const fullText = SOLUTION_POINTS[solItemIdx];
+        setSolutionTyped((prev) => {
+          const next = [...prev];
+          if (next[solItemIdx] === null) {
+            next[solItemIdx] = "";
+          }
+          next[solItemIdx] = fullText.substring(0, solCharIdx + 1);
+          return next;
+        });
+
+        if (solCharIdx < fullText.length - 1) {
+          solCharIdx++;
+          setTimeout(typeSolution, 15);
+        } else {
+          solItemIdx++;
+          solCharIdx = 0;
+          setTimeout(typeSolution, 100);
+        }
+      }
+    };
+
+    setTimeout(typeProblem, 100);
+    setTimeout(typeSolution, 100);
+  };
 
   return (
     <main>
@@ -29,18 +173,34 @@ export default function Home() {
         <div className="section-container hero-content">
           <div className="section-meta">SYS_STATUS: ACTIVE</div>
           <h1 className="hero-title" id="hero-title">
-            Scaling Ethereum<br />
-            with <span className="text-accent-blue">Arbitrum.</span>
+            {typedTitle1}
+            {typedTitle1.length >= titlePart1.length && <br />}
+            {typedTitle2.substring(0, 5)}
+            {typedTitle2.length > 5 && <span className="text-accent-blue">{typedTitle2.substring(5)}</span>}
           </h1>
           <div className="hero-subtitle" id="hero-subtitle">
-            {typedText}
+            {typedSubtitle}
+            {typedSubtitle.length > 0 && typedSubtitle.length < subtitleText.length && <span className="typing-cursor">_</span>}
           </div>
-          <p className="hero-desc" id="hero-description">
-            Arbitrum is a suite of Ethereum scaling solutions making transactions fast and cheap. By rolling up hundreds
-            of transactions into a single batch on Layer 1, Arbitrum provides massive throughput without compromising on
-            Ethereum's base layer security.
+          <p
+            className="hero-desc"
+            id="hero-description"
+            style={{
+              opacity: showDiagram ? 1 : 0,
+              transition: 'opacity 0.5 s ease-in-out'
+            }}
+          >
+            {typedDesc}
+            {typedDesc.length > 0 && typedDesc.length < descriptionText.length && <span className="typing-cursor">_</span>}
           </p>
-          <div className="terminal-controls">
+          <div
+            className="terminal-controls"
+            style={{
+              opacity: showButtons ? 1 : 0,
+              transform: showButtons ? 'translateY(0)' : 'translateY(10px)',
+              transition: 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+          >
             <Link href="/concepts" className="btn-terminal" id="btn-explore-specs">
               <span>EXPLORE_SPECS</span>
               <span className="font-mono">»</span>
@@ -52,7 +212,15 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="hero-graphic-container" id="hero-graphic">
+        <div
+          className="hero-graphic-container"
+          id="hero-graphic"
+          style={{
+            opacity: showDiagram ? 1 : 0,
+            transform: showDiagram ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'opacity 0.8s ease, transform 2s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}
+        >
           <div className="blueprint-graphic">
             <div className="blueprint-grid-back"></div>
             {/* Custom Layer 2 Rollup Diagram SVG */}
@@ -135,7 +303,7 @@ export default function Home() {
       </section>
 
       {/* Why Layer 2 Section */}
-      <section className="why-l2-section" id="why-l2">
+      <section className="why-l2-section" id="why-l2" ref={sectionRef}>
         <div className="section-container">
           <div className="section-meta">SYS_ANALYSIS: PROBLEMS_AND_SOLUTIONS</div>
           <div className="why-grid">
@@ -151,9 +319,20 @@ export default function Home() {
                 Because every node in the network must execute every transaction, the mainnet suffers from:
               </p>
               <ul className="why-list">
-                <li className="accent-orange">High Gas Fees: Bidding wars during peak hours push fees to $50+ per trade.</li>
-                <li className="accent-orange">Low Throughput: The base layer handles only ~15 transactions per second.</li>
-                <li className="accent-orange">Slow Confirmation Times: Blocks take averages of 12 seconds to clear.</li>
+                {PROBLEM_POINTS.map((point, idx) => {
+                  const isVisible = problemTyped[idx] !== null;
+                  const isCurrentlyTyping = isVisible && problemTyped[idx].length < point.length;
+                  return (
+                    <li
+                      key={idx}
+                      className="accent-orange"
+                      style={{ opacity: isVisible ? 1 : 0 }}
+                    >
+                      {problemTyped[idx] || ""}
+                      {isCurrentlyTyping && <span className="typing-cursor">_</span>}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
 
@@ -169,9 +348,20 @@ export default function Home() {
                 protocol, then compiles and publishes condensed transaction batches back to Ethereum:
               </p>
               <ul className="why-list">
-                <li className="accent-blue">Fractional Cent Fees: Transaction execution cost is slashed by up to 95%.</li>
-                <li className="accent-blue">High Throughput: Supports thousands of transactions per second (TPS).</li>
-                <li className="accent-blue">Ethereum-Grade Security: Cryptographic assertions preserve L1 trustlessness.</li>
+                {SOLUTION_POINTS.map((point, idx) => {
+                  const isVisible = solutionTyped[idx] !== null;
+                  const isCurrentlyTyping = isVisible && solutionTyped[idx].length < point.length;
+                  return (
+                    <li
+                      key={idx}
+                      className="accent-blue"
+                      style={{ opacity: isVisible ? 1 : 0 }}
+                    >
+                      {solutionTyped[idx] || ""}
+                      {isCurrentlyTyping && <span className="typing-cursor">_</span>}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
