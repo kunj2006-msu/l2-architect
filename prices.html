@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Monitor real-time Web3 assets. Track current prices and 24-hour gains/losses for Bitcoin, Ethereum, and Arbitrum.">
+  <title>L2_ARCHITECT | Real-Time Market Ticker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Global Sticky Header -->
+    <header class="global-header" id="main-header">
+      <div class="header-container">
+        <a href="index.html" class="logo" id="header-logo">
+          <span class="logo-icon"></span>L2_ARCHITECT
+        </a>
+        <button class="menu-toggle" id="menu-toggle" aria-expanded="false" aria-controls="nav-menu">
+          MENU_
+        </button>
+        <nav class="nav-menu-wrapper" id="nav-menu-wrapper">
+          <ul class="nav-menu" id="nav-menu">
+            <li class="nav-item">
+              <a href="index.html" class="nav-link" id="nav-home">Home</a>
+            </li>
+            <li class="nav-item">
+              <a href="concepts.html" class="nav-link" id="nav-concepts">Concepts</a>
+            </li>
+            <li class="nav-item">
+              <a href="prices.html" class="nav-link active" id="nav-prices">Live Prices</a>
+            </li>
+            <li class="nav-item">
+              <a href="simulator.html" class="nav-link" id="nav-simulator">Block Simulator</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- Prices Section -->
+      <section class="prices-section" id="prices">
+        <div class="section-container">
+          <div class="section-header">
+            <div class="section-meta">SYS_MARKET: REAL_TIME_INDEX</div>
+            <h1 class="section-title" id="prices-title">Live Price Feeds</h1>
+          </div>
+
+          <!-- Bloomberg Terminal Header Bar -->
+          <div class="terminal-header-bar" id="terminal-feed-status">
+            <span>FEED_SOURCE: COINGECKO_PUBLIC_API</span>
+            <span class="status" id="feed-status-text">CONNECTED</span>
+          </div>
+
+          <!-- Borderless Terminal Table -->
+          <div class="terminal-table-container">
+            <table class="terminal-table" id="prices-table">
+              <thead>
+                <tr>
+                  <th scope="col">Asset Name</th>
+                  <th scope="col">Ticker</th>
+                  <th scope="col" class="num">Current Price (USD)</th>
+                  <th scope="col" class="num">24h Change (%)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr id="row-btc">
+                  <td>
+                    <div class="coin-ticker-cell">
+                      <span class="coin-ticker">Bitcoin</span>
+                      <span class="coin-name">BTC</span>
+                    </div>
+                  </td>
+                  <td>BTC</td>
+                  <td class="num font-mono" id="btc-price">$ --,--.-</td>
+                  <td class="num font-mono" id="btc-change">-.-- %</td>
+                </tr>
+                <tr id="row-eth">
+                  <td>
+                    <div class="coin-ticker-cell">
+                      <span class="coin-ticker">Ethereum</span>
+                      <span class="coin-name">ETH</span>
+                    </div>
+                  </td>
+                  <td>ETH</td>
+                  <td class="num font-mono" id="eth-price">$ --,--.-</td>
+                  <td class="num font-mono" id="eth-change">-.-- %</td>
+                </tr>
+                <tr id="row-arb">
+                  <td>
+                    <div class="coin-ticker-cell">
+                      <span class="coin-ticker">Arbitrum</span>
+                      <span class="coin-name">ARB</span>
+                    </div>
+                  </td>
+                  <td>ARB</td>
+                  <td class="num font-mono" id="arb-price">$ -,--</td>
+                  <td class="num font-mono" id="arb-change">-.-- %</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Dashboard Controls -->
+          <div class="prices-controls">
+            <button class="btn-terminal btn-terminal-orange" id="btn-refresh">
+              <span>[ REFRESH_DATA ]</span>
+              <span class="font-mono">_</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="global-footer" id="main-footer">
+      <div class="footer-container">
+        <div class="footer-left" id="footer-credits">
+          <span class="footer-status-indicator"></span>
+          <span>L2_ARCHITECT // DESIGNED BY KUNJ S. KAKA</span>
+        </div>
+        <div class="footer-right" id="footer-github">
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" id="github-link">GITHUB_REPOSITORY</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

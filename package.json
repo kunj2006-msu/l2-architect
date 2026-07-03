@@ -1,0 +1,16 @@
+{
+  "name": "l2-architect-edu",
+  "version": "1.0.0",
+  "description": "Arbitrum and Layer 2 Educational Web App",
+  "scripts": {
+    "dev": "npx -y serve -l 3000"
+  },
+  "keywords": [
+    "web3",
+    "arbitrum",
+    "layer2",
+    "education"
+  ],
+  "author": "L2_PIONEER",
+  "license": "MIT"
+}
