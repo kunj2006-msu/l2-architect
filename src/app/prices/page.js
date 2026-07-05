@@ -29,26 +29,43 @@ const MOCK_DATA = {
   optimism: { usd: 1.85, usd_24h_change: -3.60 }
 };
 
-// Fallback dynamic 7-day chart data generator
-const getMockHistoricalData = (assetId, currentPrice, change24h) => {
+// Fallback dynamic historical chart data generator based on timeframe
+const getMockHistoricalData = (assetId, currentPrice, change24h, timeframe) => {
   const data = [];
   const now = new Date();
   const basePrice = currentPrice || 100;
   const trendPercent = (change24h || 0) / 100;
   
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    const dateStr = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
+  let points = 7;
+  let stepMs = 24 * 60 * 60 * 1000; // 1 day in ms
+  
+  if (timeframe === 1) {
+    points = 24;
+    stepMs = 60 * 60 * 1000; // 1 hour in ms
+  } else if (timeframe === 7) {
+    points = 7;
+    stepMs = 24 * 60 * 60 * 1000; // 1 day in ms
+  } else if (timeframe === 30) {
+    points = 30;
+    stepMs = 24 * 60 * 60 * 1000; // 1 day in ms
+  } else if (timeframe === 365) {
+    points = 12;
+    stepMs = 30 * 24 * 60 * 60 * 1000; // ~30 days in ms
+  }
+  
+  for (let i = points - 1; i >= 0; i--) {
+    const date = new Date(now.getTime() - i * stepMs);
+    const timestamp = date.getTime();
     
-    let dayPrice = basePrice;
+    let priceVal = basePrice;
     if (i > 0) {
       const randomFactor = 1 + (Math.random() - 0.5) * 0.04 - (i * trendPercent * 0.008);
-      dayPrice = basePrice * randomFactor;
+      priceVal = basePrice * randomFactor;
     }
     
     data.push({
-      date: dateStr,
-      price: parseFloat(dayPrice.toFixed(dayPrice >= 1000 ? 2 : 4))
+      timestamp,
+      price: parseFloat(priceVal.toFixed(priceVal >= 1000 ? 2 : 4))
     });
   }
   return data;
@@ -78,6 +95,7 @@ export default function Prices() {
   const [historicalData, setHistoricalData] = useState([]);
   const [chartLoading, setChartLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [chartTimeframe, setChartTimeframe] = useState(1);
 
   const fetchPrices = async () => {
     setIsFetching(true);
@@ -110,9 +128,30 @@ export default function Prices() {
     }
   };
 
-  const fetchHistoricalData = async (asset) => {
+  // Helper to format timestamps based on active timeframe
+  const formatTimestamp = (timestamp, timeframe) => {
+    const date = new Date(timestamp);
+    if (timeframe === 1) {
+      // 24H View: Strictly display localized time (e.g., HH:MM AM/PM)
+      return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    } else if (timeframe === 7 || timeframe === 30) {
+      // 7D & 1M Views: Display Date and Hour (e.g., MM/DD HH:00)
+      const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+      const dd = date.getDate().toString().padStart(2, '0');
+      const hh = date.getHours().toString().padStart(2, '0');
+      return `${mm}/${dd} ${hh}:00`;
+    } else {
+      // 1Y View: Display only the Date (e.g., MM/DD/YYYY)
+      const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+      const dd = date.getDate().toString().padStart(2, '0');
+      const yyyy = date.getFullYear();
+      return `${mm}/${dd}/${yyyy}`;
+    }
+  };
+
+  const fetchHistoricalData = async (asset, timeframe) => {
     setChartLoading(true);
-    const apiUrl = `https://api.coingecko.com/api/v3/coins/${asset.id}/market_chart?vs_currency=usd&days=7`;
+    const apiUrl = `https://api.coingecko.com/api/v3/coins/${asset.id}/market_chart?vs_currency=usd&days=${timeframe}`;
     
     try {
       const response = await fetch(apiUrl);
@@ -120,20 +159,18 @@ export default function Prices() {
       const data = await response.json();
       
       if (data.prices && Array.isArray(data.prices)) {
-        const parsed = data.prices.map(([timestamp, price]) => {
-          const date = new Date(timestamp);
-          const dateStr = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
-          return {
-            date: dateStr,
-            price: parseFloat(price.toFixed(price >= 1000 ? 2 : 4))
-          };
-        });
-        // De-duplicate by date to prevent duplicate X-axis labels and active dot snapping issues
+        const parsed = data.prices.map(([timestamp, price]) => ({
+          timestamp,
+          price: parseFloat(price.toFixed(price >= 1000 ? 2 : 4))
+        }));
+        
+        // De-duplicate by formatted date representation to prevent duplicate labels on X-axis
         const uniqueParsed = [];
         const seenDates = new Set();
         parsed.forEach(item => {
-          if (!seenDates.has(item.date)) {
-            seenDates.add(item.date);
+          const formatted = formatTimestamp(item.timestamp, timeframe);
+          if (!seenDates.has(formatted)) {
+            seenDates.add(formatted);
             uniqueParsed.push(item);
           }
         });
@@ -145,7 +182,7 @@ export default function Prices() {
       console.error('Fetch chart error, generating mock trend lines:', error);
       const currentPrice = prices[asset.id]?.usd || MOCK_DATA[asset.id]?.usd || 100;
       const change24h = prices[asset.id]?.usd_24h_change || MOCK_DATA[asset.id]?.usd_24h_change || 0;
-      const mockPoints = getMockHistoricalData(asset.id, currentPrice, change24h);
+      const mockPoints = getMockHistoricalData(asset.id, currentPrice, change24h, timeframe);
       setHistoricalData(mockPoints);
     } finally {
       setChartLoading(false);
@@ -156,6 +193,12 @@ export default function Prices() {
     fetchPrices();
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (activeChartAsset) {
+      fetchHistoricalData(activeChartAsset, chartTimeframe);
+    }
+  }, [activeChartAsset, chartTimeframe]);
 
   const formatPrice = (price) => {
     if (price === null || price === undefined) return '$ --,--.-';
@@ -222,7 +265,7 @@ export default function Prices() {
           color: '#eaeaea',
           boxShadow: '0 0 10px rgba(0, 0, 0, 0.7)'
         }}>
-          <p style={{ margin: 0, color: 'var(--accent-blue)' }}>{`SYS_COORD_DAT: ${data.date}`}</p>
+          <p style={{ margin: 0, color: 'var(--accent-blue)' }}>{`SYS_COORD_DAT: ${formatTimestamp(data.timestamp, chartTimeframe)}`}</p>
           <p style={{ margin: '0.25rem 0 0 0' }}>
             {`PRICE_USD: $${payload[0].value.toLocaleString(undefined, { 
               minimumFractionDigits: payload[0].value >= 1000 ? 2 : 4,
@@ -324,10 +367,10 @@ export default function Prices() {
                           <div className="trend-disabled-cell">
                             <button 
                               className={`trend-active ${!isPositive ? 'trend-down' : ''}`}
-                              title="Click to view interactive 7-day trend visualizer"
+                              title="Click to view interactive trend visualizer"
                               onClick={() => {
+                                setChartTimeframe(1);
                                 setActiveChartAsset(asset);
-                                fetchHistoricalData(asset);
                               }}
                               id={`trend-btn-${asset.id}`}
                             >
@@ -375,7 +418,7 @@ export default function Prices() {
             {/* Header */}
             <div className="modal-header">
               <div className="modal-title-wrapper">
-                <span className="modal-meta">SYS_VISUALIZER // HISTORICAL_DATA_7D</span>
+                <span className="modal-meta">{`SYS_VISUALIZER // HISTORICAL_DATA_${chartTimeframe === 1 ? '24H' : chartTimeframe === 7 ? '7D' : chartTimeframe === 30 ? '1M' : '1Y'}`}</span>
                 <h2 className="modal-title">{activeChartAsset.name} ({activeChartAsset.symbol.toUpperCase()})</h2>
               </div>
             </div>
@@ -395,18 +438,50 @@ export default function Prices() {
                 </span>
               </div>
               <div className="modal-stat-item">
-                <span className="modal-stat-label">TREND_7D</span>
+                <span className="modal-stat-label">{`TREND_${chartTimeframe === 1 ? '24H' : chartTimeframe === 7 ? '7D' : chartTimeframe === 30 ? '1M' : '1Y'}`}</span>
                 <span className={`modal-stat-value ${isTrendUp ? 'ticker-green' : 'ticker-red'}`}>
                   {isTrendUp ? '↑ BULLISH' : '↓ BEARISH'}
                 </span>
               </div>
             </div>
 
+            {/* Timeframe controls */}
+            <div className="timeframe-controls">
+              <button 
+                className={`timeframe-btn ${chartTimeframe === 1 ? 'active' : ''}`}
+                onClick={() => setChartTimeframe(1)}
+                disabled={chartLoading}
+              >
+                [ 24H ]
+              </button>
+              <button 
+                className={`timeframe-btn ${chartTimeframe === 7 ? 'active' : ''}`}
+                onClick={() => setChartTimeframe(7)}
+                disabled={chartLoading}
+              >
+                [ 7D ]
+              </button>
+              <button 
+                className={`timeframe-btn ${chartTimeframe === 30 ? 'active' : ''}`}
+                onClick={() => setChartTimeframe(30)}
+                disabled={chartLoading}
+              >
+                [ 1M ]
+              </button>
+              <button 
+                className={`timeframe-btn ${chartTimeframe === 365 ? 'active' : ''}`}
+                onClick={() => setChartTimeframe(365)}
+                disabled={chartLoading}
+              >
+                [ 1Y ]
+              </button>
+            </div>
+
             {/* Chart stream visualizer */}
             <div className="chart-container-wrapper">
               {chartLoading ? (
                 <div className="chart-loading-overlay">
-                  <span>[ INITIALIZING_CHART_STREAM... ]</span>
+                  <span>[ FETCHING_DATA... ]</span>
                 </div>
               ) : (
                 mounted && (
@@ -414,8 +489,9 @@ export default function Prices() {
                     <LineChart data={historicalData} margin={{ top: 10, right: 10, left: 10, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#161616" vertical={false} />
                       <XAxis 
-                        dataKey="date" 
+                        dataKey="timestamp" 
                         stroke="var(--text-muted)" 
+                        tickFormatter={(val) => formatTimestamp(val, chartTimeframe)}
                         tick={{ fontFamily: 'var(--font-mono)', fontSize: 9 }}
                         axisLine={{ stroke: 'var(--border-color)' }}
                         tickLine={{ stroke: 'var(--border-color)' }}
