@@ -97,6 +97,46 @@ export default function Prices() {
   const [mounted, setMounted] = useState(false);
   const [chartTimeframe, setChartTimeframe] = useState(1);
 
+  // Asset converter states
+  const [converterUsd, setConverterUsd] = useState('');
+  const [converterCrypto, setConverterCrypto] = useState('');
+  const [converterAssetId, setConverterAssetId] = useState('bitcoin');
+
+  const hasData = prices.bitcoin.usd !== null;
+
+  const handleUsdChange = (val) => {
+    setConverterUsd(val);
+    const parsedUsd = parseFloat(val);
+    const price = prices[converterAssetId]?.usd;
+    if (!isNaN(parsedUsd) && price) {
+      setConverterCrypto((parsedUsd / price).toString());
+    } else {
+      setConverterCrypto('');
+    }
+  };
+
+  const handleCryptoChange = (val) => {
+    setConverterCrypto(val);
+    const parsedCrypto = parseFloat(val);
+    const price = prices[converterAssetId]?.usd;
+    if (!isNaN(parsedCrypto) && price) {
+      setConverterUsd((parsedCrypto * price).toString());
+    } else {
+      setConverterUsd('');
+    }
+  };
+
+  const handleConverterAssetChange = (assetId) => {
+    setConverterAssetId(assetId);
+    const price = prices[assetId]?.usd;
+    const parsedUsd = parseFloat(converterUsd);
+    if (!isNaN(parsedUsd) && price) {
+      setConverterCrypto((parsedUsd / price).toString());
+    } else {
+      setConverterCrypto('');
+    }
+  };
+
   const fetchPrices = async () => {
     setIsFetching(true);
     setStatus('FETCHING...');
@@ -390,6 +430,57 @@ export default function Prices() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Asset Converter Widget */}
+          <div className="converter-widget" id="asset-converter">
+            <div className="converter-title">&gt; ASSET_CONVERSION_TERMINAL</div>
+            <div className="converter-grid">
+              {/* USD Input */}
+              <div className="converter-field">
+                <label htmlFor="converter-usd">USD Amount</label>
+                <div className="input-prefix-wrapper">
+                  <span className="input-prefix">$</span>
+                  <input 
+                    type="text" 
+                    id="converter-usd" 
+                    placeholder={hasData ? "0.00" : "[ AWAITING_DATA_FEED ]"}
+                    value={hasData ? converterUsd : "[ AWAITING_DATA_FEED ]"}
+                    onChange={(e) => handleUsdChange(e.target.value)}
+                    disabled={!hasData}
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+
+              {/* Crypto Input */}
+              <div className="converter-field">
+                <label htmlFor="converter-crypto">Crypto Amount</label>
+                <div className="input-select-wrapper">
+                  <input 
+                    type="text" 
+                    id="converter-crypto" 
+                    placeholder={hasData ? "0.0000" : "[ AWAITING_DATA_FEED ]"}
+                    value={hasData ? converterCrypto : "[ AWAITING_DATA_FEED ]"}
+                    onChange={(e) => handleCryptoChange(e.target.value)}
+                    disabled={!hasData}
+                    autoComplete="off"
+                  />
+                  <select 
+                    id="converter-asset-select" 
+                    value={converterAssetId}
+                    onChange={(e) => handleConverterAssetChange(e.target.value)}
+                    disabled={!hasData}
+                  >
+                    {ASSETS.map(asset => (
+                      <option key={asset.id} value={asset.id}>
+                        {asset.symbol.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Dashboard Controls */}

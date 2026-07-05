@@ -18,7 +18,8 @@ function Block({
   onDataChange,
   onNonceChange,
   onHashChange,
-  isValid
+  isValid,
+  miningDifficulty
 }) {
   const [currentHash, setCurrentHash] = useState('');
   const [isMining, setIsMining] = useState(false);
@@ -46,9 +47,10 @@ function Block({
     setIsMining(true);
     let currentNonce = 0;
     let calculatedHash = '';
+    const prefix = '0'.repeat(miningDifficulty);
     while (true) {
       calculatedHash = await sha256(currentNonce + data + previousHash);
-      if (calculatedHash.startsWith('00')) {
+      if (calculatedHash.startsWith(prefix)) {
         break;
       }
       currentNonce++;
@@ -139,6 +141,7 @@ export default function Simulator() {
     { id: 4, data: '', nonce: 0, hash: '' },
     { id: 5, data: '', nonce: 0, hash: '' },
   ]);
+  const [miningDifficulty, setMiningDifficulty] = useState(2);
 
   const updateBlockField = (index, field, value) => {
     setBlocks(prev => {
@@ -151,7 +154,7 @@ export default function Simulator() {
   // Helper to determine if a block is valid
   const getBlockValidity = (index) => {
     const hash = blocks[index].hash;
-    const isValidPoW = hash.startsWith('00');
+    const isValidPoW = hash.startsWith('0'.repeat(miningDifficulty));
     
     if (index === 0) {
       return isValidPoW;
@@ -170,6 +173,31 @@ export default function Simulator() {
             <h1 className="section-title" id="simulator-title">Cryptographic Block Simulator</h1>
           </div>
 
+          {/* Difficulty Controls */}
+          <div className="difficulty-controls-row">
+            <span className="difficulty-label">[ SYSTEM_DIFFICULTY ]</span>
+            <div className="difficulty-buttons">
+              <button 
+                className={`difficulty-btn ${miningDifficulty === 2 ? 'active' : ''}`}
+                onClick={() => setMiningDifficulty(2)}
+              >
+                [ LEVEL_1: "00" ]
+              </button>
+              <button 
+                className={`difficulty-btn ${miningDifficulty === 3 ? 'active' : ''}`}
+                onClick={() => setMiningDifficulty(3)}
+              >
+                [ LEVEL_2: "000" ]
+              </button>
+              <button 
+                className={`difficulty-btn ${miningDifficulty === 4 ? 'active' : ''}`}
+                onClick={() => setMiningDifficulty(4)}
+              >
+                [ LEVEL_3: "0000" ]
+              </button>
+            </div>
+          </div>
+
           {/* Chain Wrapper */}
           <div className="chain-wrapper">
             <div className="chain-container" id="chain-container">
@@ -186,6 +214,7 @@ export default function Simulator() {
                     nonce={block.nonce}
                     previousHash={prevHash}
                     isValid={isValid}
+                    miningDifficulty={miningDifficulty}
                     onDataChange={(val) => updateBlockField(index, 'data', val)}
                     onNonceChange={(val) => updateBlockField(index, 'nonce', val)}
                     onHashChange={(val) => updateBlockField(index, 'hash', val)}
