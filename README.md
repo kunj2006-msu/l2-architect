@@ -4,17 +4,20 @@
 **Class:**  BE III CSE 
 
 ## Project Description
-L2_ARCHITECT is a Next.js-based educational Web3 platform designed to explain the core mechanics of blockchain technology, specifically focusing on Ethereum Layer 2 scaling solutions like Arbitrum. The project features a cohesive "Neo-Terminal Blueprint" brutalist design system and includes interactive, data-driven elements to demonstrate Web3 concepts tangibly.
+L2_ARCHITECT is a Next.js-based educational Web3 platform designed to explain the core mechanics of blockchain technology, specifically focusing on Ethereum Layer 2 scaling solutions like Arbitrum. The project features a cohesive brutalist design system and includes interactive, data-driven elements to demonstrate Web3 concepts tangibly.
 
 ---
 
-## Website Structure & Pages
+## Website Structure & Features
 
 1. **Home / Landing (`/`)**
-   Introduces the core theme of the website: why Ethereum requires Layer 2 solutions to scale and how Arbitrum utilizes Optimistic Rollups to achieve high throughput and low fees while maintaining L1 security.
+   Introduces the core theme of the website: why Ethereum requires Layer 2 solutions to scale and how Arbitrum utilizes Optimistic Rollups to achieve high throughput and low fees while maintaining L1 security. Includes a clean, high-performance SVG animation modeling transaction sequencing.
 
 2. **Concepts (`/concepts`)**
-   A visual comparison matrix breaking down fundamental Web3 paradigms. It features split-pane explanations of Web2 vs Web3, Ethereum vs Bitcoin, Public vs Private Keys, and Blockchain vs Traditional Databases.
+   A comparative dashboard breaking down fundamental Web3 paradigms:
+   - **Expanded Matrices:** Detailed technical comparison grids covering Web2 vs Web3, Ethereum vs Bitcoin, Public vs Private Keys, and Blockchain vs Databases (5–6 points each).
+   - **Terminal Diagnostics Quizzes:** Each concept card features an interactive Gateway (`[ START_QUIZ ]` button) prompting a progressive 5-question multiple-choice quiz.
+   - **Dynamic Feedback & Recovery:** Tracks user choices, flags status diagnostic updates on correct/incorrect choices, calculates scoring, and allows a full `[ REBOOT_SEQUENCE ]` to try again.
 
 3. **Live Prices (`/prices`)**
    A real-time financial dashboard fetching live cryptocurrency data directly from the public CoinGecko API. 
@@ -29,6 +32,17 @@ L2_ARCHITECT is a Next.js-based educational Web3 platform designed to explain th
    - **Modular React Architecture:** Rebuilt with modular components to eliminate rendering bottlenecks.
    - **Debounced Hashing:** Employs a 50ms debounced `useEffect` cascade to propagate hash updates cleanly down the chain without locking the browser's main thread.
    - **Proof-of-Work Mining:** A button-bound mining loop adjusts the nonce to solve the hash difficulty (finding a SHA-256 hash starting with `"00"`).
+
+---
+
+## Theme Configurations (Global Switcher)
+
+The application supports a Global Theme engine that shifts styles globally while maintaining layout dimensions and grid alignments:
+* **Dark Theme (Neo-Terminal Blueprint):** Off-white monospace fonts, dark charcoal backgrounds, electric cyan accents, and diagnostic grid lines.
+* **Light Theme (Cyber-Paper Terminal):** Dark ink-black typography (`#121212`), high-contrast cream-paper white backgrounds (`#F4F4F0`), gray structural borders (`#CCCCCC`), and technical blue highlight overlays.
+* **Hydration Safety:** Built with a `useEffect` initializer targeting `localStorage` preferences to prevent server-side hydration mismatches.
+* **Transition System:** Configured with a global CSS transition utility (`0.3s` ease) for background color, text color, border color, and glow shadows to ensure seamless blending.
+* **Button Stacking Contexts:** Utilizes local stacking contexts on `.btn-terminal` to ensure negative z-index hover effects slide cleanly over Light Mode backdrops without clipping.
 
 ---
 

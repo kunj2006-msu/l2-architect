@@ -1,15 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function Header() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [theme, setTheme] = useState('dark');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
   };
 
   const navLinks = [
@@ -21,7 +35,7 @@ export default function Header() {
 
   return (
     <header className="global-header" id="main-header">
-      <div class="header-container">
+      <div className="header-container">
         <Link href="/" className="logo" id="header-logo">
           <span className="logo-icon"></span>L2_ARCHITECT
         </Link>
@@ -52,6 +66,16 @@ export default function Header() {
                 </li>
               );
             })}
+            <li className="nav-item">
+              <button 
+                onClick={toggleTheme} 
+                className="theme-toggle-btn"
+                id="theme-toggle-btn"
+                type="button"
+              >
+                [ MODE: {theme.toUpperCase()} ]
+              </button>
+            </li>
           </ul>
         </nav>
       </div>
