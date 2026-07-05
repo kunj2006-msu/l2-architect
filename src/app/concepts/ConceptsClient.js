@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import TerminalQuiz from './TerminalQuiz';
 
 const CONCEPTS_DATA = [
@@ -351,13 +351,107 @@ export default function ConceptsClient() {
   const [leftTyped, setLeftTyped] = useState(() => new Array(CONCEPTS_DATA[0].left.points.length).fill(null));
   const [rightTyped, setRightTyped] = useState(() => new Array(CONCEPTS_DATA[0].right.points.length).fill(null));
 
+  // Quiz active state & navigation intercept states
+  const [isQuizActive, setIsQuizActive] = useState(false);
+  const [pendingSlideIndex, setPendingSlideIndex] = useState(null);
+  const [pendingNavigationUrl, setPendingNavigationUrl] = useState(null);
+  const [showExitModal, setShowExitModal] = useState(false);
+
+  // Synchronous ref to prevent double prompting on browser unload transitions
+  const isQuizActiveRef = useRef(false);
+  useEffect(() => {
+    isQuizActiveRef.current = isQuizActive;
+  }, [isQuizActive]);
+
+  // Intercept window/tab reload and close browser-level back/forward
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isQuizActiveRef.current) {
+        e.preventDefault();
+        e.returnValue = ''; // Trigger standard browser warning
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  // Intercept Next.js Link click client transitions
+  useEffect(() => {
+    if (!isQuizActive) return;
+
+    const handleDocumentClick = (e) => {
+      let target = e.target;
+      while (target && target.tagName !== 'A') {
+        target = target.parentNode;
+      }
+
+      if (target && target.href) {
+        const url = new URL(target.href);
+        // Intercept client-side path transitions on our domain
+        if (url.origin === window.location.origin && url.pathname !== window.location.pathname) {
+          e.preventDefault();
+          e.stopPropagation();
+          setPendingNavigationUrl(target.href);
+          setShowExitModal(true);
+        }
+      }
+    };
+
+    document.addEventListener('click', handleDocumentClick, true);
+    return () => document.removeEventListener('click', handleDocumentClick, true);
+  }, [isQuizActive]);
+
+  const handleConfirmExit = () => {
+    // Disable the reload interceptor synchronously before triggering page navigation
+    isQuizActiveRef.current = false;
+    setIsQuizActive(false);
+    setShowExitModal(false);
+
+    if (pendingSlideIndex !== null) {
+      setCurrentIndex(pendingSlideIndex);
+      setPendingSlideIndex(null);
+    } else if (pendingNavigationUrl !== null) {
+      const targetUrl = pendingNavigationUrl;
+      setPendingNavigationUrl(null);
+      window.location.href = targetUrl;
+    }
+  };
+
+  const handleCancelExit = () => {
+    setShowExitModal(false);
+    setPendingSlideIndex(null);
+    setPendingNavigationUrl(null);
+  };
+
   // Handle slide changing
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? CONCEPTS_DATA.length - 1 : prev - 1));
+    const target = currentIndex === 0 ? CONCEPTS_DATA.length - 1 : currentIndex - 1;
+    if (isQuizActive) {
+      setPendingSlideIndex(target);
+      setShowExitModal(true);
+    } else {
+      setCurrentIndex(target);
+    }
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev === CONCEPTS_DATA.length - 1 ? 0 : prev + 1));
+    const target = currentIndex === CONCEPTS_DATA.length - 1 ? 0 : currentIndex + 1;
+    if (isQuizActive) {
+      setPendingSlideIndex(target);
+      setShowExitModal(true);
+    } else {
+      setCurrentIndex(target);
+    }
+  };
+
+  const handleDotClick = (target) => {
+    if (target === currentIndex) return;
+    if (isQuizActive) {
+      setPendingSlideIndex(target);
+      setShowExitModal(true);
+    } else {
+      setCurrentIndex(target);
+    }
   };
 
   useEffect(() => {
@@ -503,7 +597,12 @@ export default function ConceptsClient() {
                   </ul>
                 </div>
               </div>
-              <TerminalQuiz key={card.id} quiz={card.quiz} conceptTitle={`${card.left.title}_VS_${card.right.title}`} />
+              <TerminalQuiz 
+                key={card.id} 
+                quiz={card.quiz} 
+                conceptTitle={`${card.left.title}_VS_${card.right.title}`} 
+                onStateChange={setIsQuizActive}
+              />
             </div>
 
             {/* Next button on the right side */}
@@ -523,7 +622,7 @@ export default function ConceptsClient() {
               <button
                 key={index}
                 className={`pagination-dot ${index === currentIndex ? 'active' : ''}`}
-                onClick={() => setCurrentIndex(index)}
+                onClick={() => handleDotClick(index)}
                 aria-label={`Navigate to matrix ${index + 1}`}
                 id={`btn-matrix-dot-${index}`}
               />
@@ -531,6 +630,46 @@ export default function ConceptsClient() {
           </div>
         </div>
       </section>
+
+      {showExitModal && (
+        <div className="terminal-modal-overlay">
+          <div className="terminal-modal modal-trend-down" id="exit-quiz-modal">
+            <div className="modal-header">
+              <div className="modal-title-wrapper">
+                <span className="modal-meta">&gt; SYSTEM_DIAGNOSTICS_WARNING // EXIT_ATTEMPT</span>
+                <h2 className="modal-title">Confirm Sequence Abort</h2>
+              </div>
+            </div>
+            
+            <div className="modal-body" style={{ fontFamily: 'var(--font-mono)', fontSize: '0.95rem', lineHeight: '1.5', color: 'var(--text-color)' }}>
+              WARNING: Diagnostics check is currently active. Exiting this module will reset your current diagnostic progress. 
+              Do you want to abort the sequence or continue?
+            </div>
+            
+            <div className="modal-footer" style={{ gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <button 
+                className="btn-terminal btn-terminal-orange" 
+                onClick={handleConfirmExit}
+                id="btn-confirm-exit"
+                type="button"
+              >
+                <span>[ EXIT_DIAGNOSTICS ]</span>
+                <span className="font-mono">_</span>
+              </button>
+              <button 
+                className="btn-terminal" 
+                onClick={handleCancelExit}
+                id="btn-cancel-exit"
+                type="button"
+                style={{ borderColor: 'var(--accent-blue)', color: 'var(--accent-blue)' }}
+              >
+                <span>[ CONTINUE_DIAGNOSTICS ]</span>
+                <span className="font-mono">»</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

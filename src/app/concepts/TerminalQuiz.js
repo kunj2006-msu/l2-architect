@@ -1,14 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function TerminalQuiz({ quiz, conceptTitle }) {
+export default function TerminalQuiz({ quiz, conceptTitle, onStateChange }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOptionIndex, setSelectedOptionIndex] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
   const [quizComplete, setQuizComplete] = useState(false);
   const [quizStarted, setQuizStarted] = useState(false);
+
+  useEffect(() => {
+    if (onStateChange) {
+      onStateChange(quizStarted && !quizComplete);
+    }
+    return () => {
+      if (onStateChange) {
+        onStateChange(false);
+      }
+    };
+  }, [quizStarted, quizComplete, onStateChange]);
 
   if (!quiz || quiz.length === 0) {
     return (
